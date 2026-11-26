@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cyber Ethics Universe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* Layout: one long flight path — hero with a live orbit system, mission briefing, then five planets as stops on a curved route; each planet opens a full landing panel. Deliberately single dark theme (deep space). */
+:root{
+  color-scheme: dark;
+  --void:#05071a;          /* deep space */
+  --midnight:#0b1033;      /* midnight blue */
+  --indigo:#3b3fb8;        /* indigo */
+  --violet:#8b5cf6;        /* violet */
+  --cyan:#7ce7f4;          /* soft cyan */
+  --star:#e8ecff;          /* text */
+  --dust:#9aa3d6;          /* muted text */
+  --line:rgba(124,231,244,.18);
+  --glass:rgba(16,20,64,.55);
+  --glass-strong:rgba(11,14,46,.92);
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --gutter-l:max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r:max(16px, env(safe-area-inset-right, 0px));
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--void);overflow-x:clip}
+body{background:var(--void);color:var(--star);font-family:var(--f-body);font-size:16px;line-height:1.6;overflow-x:clip}
+body.locked{overflow:hidden}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:6px}
+
+/* ---------- Space backdrop ---------- */
+#space{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.nebula{position:fixed;inset:-20%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(40% 35% at 18% 22%, rgba(139,92,246,.28), transparent 70%),
+    radial-gradient(35% 30% at 82% 30%, rgba(59,63,184,.35), transparent 70%),
+    radial-gradient(45% 40% at 60% 85%, rgba(124,231,244,.12), transparent 70%),
+    linear-gradient(180deg, #05071a 0%, #0b1033 55%, #070a24 100%);
+}
+.drift{position:fixed;z-index:1;pointer-events:none;border-radius:50%;will-change:transform}
+.drift.d1{width:220px;height:220px;right:-60px;top:62vh;
+  background:radial-gradient(circle at 30% 30%, #b9a3ff, #6d3fd8 45%, #1d1260 80%);
+  box-shadow:inset -30px -20px 60px rgba(5,7,26,.85), 0 0 80px rgba(139,92,246,.25);opacity:.55}
+.drift.d2{width:90px;height:90px;left:4vw;top:120vh;
+  background:radial-gradient(circle at 35% 30%, #c8fbff, #3fb6cc 50%, #0d3550 85%);
+  box-shadow:inset -14px -10px 30px rgba(5,7,26,.8), 0 0 40px rgba(124,231,244,.2);opacity:.6}
+.drift.d3{width:46px;height:46px;right:14vw;top:210vh;
+  background:radial-gradient(circle at 35% 30%, #9ea3ff, #3b3fb8 55%, #11134a);opacity:.7}
+
+main,header,footer{position:relative;z-index:2}
+.wrap{max-width:1180px;margin:0 auto;padding-left:var(--gutter-l);padding-right:var(--gutter-r)}
+
+/* ---------- Top bar ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+  background:linear-gradient(180deg, rgba(5,7,26,.85), rgba(5,7,26,0));backdrop-filter:blur(6px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--void)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
+.brand{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--star);text-decoration:none;display:flex;align-items:center;gap:10px}
+.brand i{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--cyan),var(--violet));box-shadow:0 0 14px var(--violet)}
+.telemetry{font-family:var(--f-mono);font-size:11px;color:var(--dust);letter-spacing:.08em;display:flex;gap:18px}
+.telemetry b{color:var(--cyan);font-weight:500}
+@media (max-width:640px){.telemetry .hide-sm{display:none}}
+
+/* ---------- Hero ---------- */
+.hero{padding-block:48px 72px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--cyan)}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.1rem,5vw,4.1rem);line-height:1.06;letter-spacing:-.01em;margin:0 0 22px;text-wrap:balance}
+.hero h1 .glow{display:block;background:linear-gradient(90deg,var(--cyan),#b8a6ff 50%,var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 24px rgba(139,92,246,.35))}
+.hero h1 .ch{display:inline-block;animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.hero h1 .glow{animation:rise 1.1s .45s cubic-bezier(.2,.8,.2,1) both}
+.hero .sub{font-family:var(--f-display);font-weight:400;font-size:clamp(1rem,2vw,1.3rem);color:#cfd5ff;margin:0 0 14px}
+.crew{display:flex;flex-direction:column;gap:12px;margin:0 0 24px}
+.crew-lbl{font-family:var(--f-mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px}
+.crew-lbl::before{content:"";width:28px;height:1px;background:var(--cyan)}
+.crew ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.crew li{font-size:14px;font-weight:500;padding:6px 14px;border-radius:999px;border:1px solid rgba(139,92,246,.45);background:rgba(139,92,246,.12);color:var(--star);animation:rise .8s .6s cubic-bezier(.2,.8,.2,1) both}
+.crew li:nth-child(2){animation-delay:.68s}.crew li:nth-child(3){animation-delay:.76s}.crew li:nth-child(4){animation-delay:.84s}.crew li:nth-child(5){animation-delay:.92s}
+.hero p.lede{color:var(--dust);max-width:52ch;margin:0 0 28px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.btn{font-family:var(--f-body);font-weight:700;font-size:14px;border-radius:999px;padding:13px 22px;cursor:pointer;border:1px solid transparent;text-decoration:none;display:inline-flex;align-items:center;gap:10px;transition:transform .25s, box-shadow .25s, background .25s}
+.btn-primary{background:linear-gradient(90deg,var(--indigo),var(--violet));color:#fff;box-shadow:0 8px 30px rgba(139,92,246,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(139,92,246,.55)}
+.btn-ghost{background:transparent;color:var(--cyan);border-color:var(--line)}
+.btn-ghost:hover{background:rgba(124,231,244,.08)}
+@keyframes rise{from{transform:translateY(.4em);filter:blur(6px)}to{transform:none;filter:none}}
+
+/* Orbit system */
+.system{position:relative;width:100%;max-width:520px;aspect-ratio:1;margin-inline:auto}
+.sun{position:absolute;left:50%;top:50%;width:22%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#fff 0%,#c9f6ff 18%,var(--cyan) 38%,var(--violet) 75%,#3b1f8f 100%);
+  box-shadow:0 0 60px rgba(124,231,244,.55),0 0 140px rgba(139,92,246,.45);animation:pulse 5s ease-in-out infinite}
+.sun span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:clamp(8px,1.6vw,11px);color:#0b1033;font-weight:500;letter-spacing:.1em;text-align:center;line-height:1.2}
+@keyframes pulse{50%{box-shadow:0 0 80px rgba(124,231,244,.7),0 0 180px rgba(139,92,246,.55)}}
+.orbit{position:absolute;left:50%;top:50%;border:1px dashed rgba(124,231,244,.22);border-radius:50%;transform:translate(-50%,-50%);animation:spin linear infinite}
+.orbit .body{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);border:0;padding:0;background:none;cursor:pointer;animation:spin linear infinite reverse;animation-duration:inherit}
+.orbit .body .orb{display:block;border-radius:50%;transition:transform .3s, box-shadow .3s}
+.orbit .body:hover .orb,.orbit .body:focus-visible .orb{transform:scale(1.35)}
+.orbit .body .tag{position:absolute;left:50%;top:calc(100% + 4px);transform:translateX(-50%);white-space:nowrap;font-family:var(--f-mono);font-size:10px;color:var(--dust);letter-spacing:.06em;opacity:.0;transition:opacity .3s}
+.orbit .body:hover .tag,.orbit .body:focus-visible .tag{opacity:1;color:var(--cyan)}
+.system:hover .orbit,.system:hover .orbit .body{animation-play-state:paused}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.orbit .body{animation-name:counter}
+@keyframes counter{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+
+/* ---------- Planet skins (shared by orbit, cards, panel) ---------- */
+.skin-1{background:radial-gradient(circle at 32% 28%,#d9ccff 0%,#9b74ff 30%,#5a2fcf 62%,#1c0f57 100%)}
+.skin-2{background:radial-gradient(circle at 32% 28%,#c5c9ff 0%,#6f74ff 32%,#3b3fb8 60%,#101347 100%)}
+.skin-3{background:radial-gradient(circle at 32% 28%,#e3fdff 0%,#7ce7f4 30%,#2a8fb3 62%,#0b2a4a 100%)}
+.skin-4{background:radial-gradient(circle at 32% 28%,#f0e8ff 0%,#b693ff 26%,#4f6bd9 58%,#121a55 100%)}
+.skin-5{background:radial-gradient(circle at 32% 28%,#d6fff8 0%,#5fd3e0 26%,#6a4ce0 62%,#1a0f4d 100%)}
+.planet-shade{box-shadow:inset -18px -14px 40px rgba(5,7,26,.85), inset 6px 6px 18px rgba(255,255,255,.12)}
+
+/* ---------- Sections ---------- */
+section{padding-block:72px}
+.sec-head{display:flex;flex-direction:column;gap:12px;margin-bottom:40px;max-width:720px}
+.sec-head h2{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.12;margin:0;text-wrap:balance}
+.sec-head p{color:var(--dust);margin:0}
+
+/* Mission briefing */
+.brief-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.brief{border:1px solid var(--line);border-radius:18px;padding:24px;background:var(--glass);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:14px;transition:transform .4s, border-color .4s}
+.brief:hover{transform:translateY(-4px);border-color:rgba(124,231,244,.45)}
+.brief .q{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--cyan);text-transform:uppercase}
+.brief p{margin:0;font-size:17px;line-height:1.5}
+
+/* Route & planet cards */
+.route{position:relative}
+.route-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.route-path path{fill:none;stroke:url(#routeGrad);stroke-width:1.5;stroke-dasharray:6 10;animation:dash 30s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-800}}
+.cards{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:28px}
+.card{grid-column:span 2;position:relative;text-align:left;border:1px solid var(--line);border-radius:24px;padding:28px 24px 24px;background:linear-gradient(160deg,rgba(26,30,90,.7),rgba(11,14,46,.75));
+  backdrop-filter:blur(10px);color:var(--star);font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:14px;overflow:hidden;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1), border-color .4s, box-shadow .5s}
+.card:nth-child(4){grid-column:2 / span 2}
+.card:nth-child(5){grid-column:4 / span 2}
+.card:hover,.card:focus-visible{transform:translateY(-8px);border-color:rgba(124,231,244,.55);box-shadow:0 20px 60px rgba(59,63,184,.45), 0 0 0 1px rgba(139,92,246,.3)}
+.card .stage{position:relative;height:150px;display:grid;place-items:center}
+.card .globe{width:110px;height:110px;border-radius:50%;animation:float 6s ease-in-out infinite;transition:transform .6s}
+.card:hover .globe{transform:scale(1.12) rotate(-8deg)}
+.card .ring{position:absolute;width:180px;height:46px;border-radius:50%;border:2px solid rgba(124,231,244,.35);transform:rotate(-14deg);box-shadow:0 0 18px rgba(124,231,244,.15)}
+.card .ring.back{clip-path:inset(0 0 50% 0);z-index:0}
+.card .ring.front{clip-path:inset(50% 0 0 0);z-index:2}
+.card .moon{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);top:50%;left:50%;
+  animation:moon 7s linear infinite;offset-path:none}
+@keyframes moon{from{transform:rotate(0) translateX(84px) rotate(0)}to{transform:rotate(360deg) translateX(84px) rotate(-360deg)}}
+@keyframes float{50%{transform:translateY(-10px)}}
+.card:nth-child(2) .globe{animation-delay:-1.2s}.card:nth-child(3) .globe{animation-delay:-2.4s}.card:nth-child(4) .globe{animation-delay:-3.6s}.card:nth-child(5) .globe{animation-delay:-4.8s}
+.card .meta{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:11px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase}
+.card .meta b{color:var(--cyan);font-weight:500}
+.card h3{font-family:var(--f-display);font-weight:600;font-size:1.28rem;margin:0;line-height:1.2}
+.card h3 small{display:block;font-family:var(--f-mono);font-size:11px;font-weight:400;color:var(--violet);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+.card p{margin:0;color:var(--dust);font-size:15px}
+.card .go{margin-top:auto;font-weight:700;font-size:14px;color:var(--cyan);display:flex;align-items:center;gap:8px}
+.card .go svg{transition:transform .3s}
+.card:hover .go svg{transform:translateX(5px)}
+.card .visited{position:absolute;top:18px;right:18px;font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;padding:4px 8px;border-radius:999px;border:1px solid rgba(124,231,244,.5);color:var(--cyan)}
+
+.progress{display:flex;align-items:center;gap:14px;margin-top:36px;font-family:var(--f-mono);font-size:12px;color:var(--dust)}
+.progress .bar{flex:1;height:4px;border-radius:4px;background:rgba(124,231,244,.12);overflow:hidden;max-width:360px}
+.progress .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .8s cubic-bezier(.2,.8,.2,1)}
+
+/* Agenda strip */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--dust)}
+
+footer{padding-block:48px 64px;border-top:1px solid var(--line);color:var(--dust);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+footer .mono{font-family:var(--f-mono);font-size:12px}
+
+/* ---------- Landing panel ---------- */
+.panel{position:fixed;inset:0;z-index:50;display:grid;place-items:stretch;visibility:hidden;pointer-events:none;overflow:hidden}
+.panel.open{visibility:visible;pointer-events:auto}
+.panel .veil{position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(59,63,184,.35),rgba(5,7,26,.94) 70%);backdrop-filter:blur(10px);opacity:0;transition:opacity .5s}
+.panel.open .veil{opacity:1}
+.panel .ship{position:relative;display:grid;grid-template-columns:minmax(260px,38%) 1fr;grid-template-rows:minmax(0,1fr);height:100%;min-height:0;transform:scale(1.06);opacity:0;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.panel.open .ship{transform:none;opacity:1}
+.panel .viewport{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:22px;padding:calc(env(safe-area-inset-top,0px) + 40px) 24px 40px max(24px,env(safe-area-inset-left,0px));overflow:hidden}
+.panel .big{width:min(300px,60vw);aspect-ratio:1;border-radius:50%;animation:float 7s ease-in-out infinite, glow 6s ease-in-out infinite;position:relative}
+.panel .big::after{content:"";position:absolute;inset:-14%;border-radius:50%;border:1px dashed rgba(124,231,244,.3);animation:spinPlain 40s linear infinite}
+@keyframes spinPlain{to{transform:rotate(360deg)}}
+@keyframes glow{50%{filter:drop-shadow(0 0 40px rgba(139,92,246,.6))}}
+.panel .coord{font-family:var(--f-mono);font-size:11px;color:var(--dust);letter-spacing:.14em;text-align:center;text-transform:uppercase;line-height:1.9}
+.panel .coord b{color:var(--cyan);font-weight:500}
+.panel .content{position:relative;overflow-y:auto;min-height:0;background:var(--glass-strong);border-left:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top,0px) + 72px) max(24px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 48px) clamp(24px,4vw,56px);overscroll-behavior:contain}
+.panel .close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);right:max(18px,calc(env(safe-area-inset-right,0px) + 18px));z-index:5;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(5,7,26,.7);color:var(--star);cursor:pointer;display:grid;place-items:center;transition:transform .3s, border-color .3s}
+.panel .close:hover{transform:rotate(90deg);border-color:var(--cyan)}
+.content > *{max-width:720px}
+.content .kicker{font-family:var(--f-mono);font-size:12px;letter-spacing:.2em;color:var(--violet);text-transform:uppercase}
+.content h2{font-family:var(--f-display);font-weight:800;font-size:clamp(1.7rem,3.6vw,2.6rem);line-height:1.08;margin:10px 0 14px;text-wrap:balance}
+.content .intro{color:#cfd5ff;font-size:17px;margin:0 0 28px}
+.content h3{font-family:var(--f-display);font-weight:600;font-size:1.05rem;margin:40px 0 14px;color:var(--cyan);letter-spacing:.01em;display:flex;align-items:center;gap:10px}
+.content h3::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.content p{color:#d6dbff;margin:0 0 14px}
+.content ul{margin:0 0 14px;padding-left:20px;color:#d6dbff}
+.content li{margin-bottom:6px}
+.content li::marker{color:var(--violet)}
+.content .src{font-family:var(--f-mono);font-size:11px;color:var(--dust);border-left:2px solid var(--violet);padding-left:12px;margin-top:10px}
+.content blockquote{margin:0 0 18px;padding:18px 20px;border-radius:14px;background:linear-gradient(90deg,rgba(139,92,246,.18),rgba(124,231,244,.06));border:1px solid rgba(139,92,246,.35);font-size:17px;color:var(--star)}
+.reveal{animation:slideIn .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slideIn{from{transform:translateY(14px)}to{transform:none}}
+/* slide-to-slide transition between planets */
+.slide{transition:opacity .32s ease, transform .32s cubic-bezier(.4,0,.2,1), filter .32s ease}
+.slide.out-l{opacity:0;transform:translateX(-48px);filter:blur(4px)}
+.slide.out-r{opacity:0;transform:translateX(48px);filter:blur(4px)}
+.slide.in-r{animation:inR .6s cubic-bezier(.2,.8,.2,1) both}
+.slide.in-l{animation:inL .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes inR{from{opacity:0;transform:translateX(56px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-56px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.panel .big{transition:scale .45s cubic-bezier(.4,0,.2,1), rotate .45s cubic-bezier(.4,0,.2,1), opacity .35s, translate .45s cubic-bezier(.4,0,.2,1)}
+.panel .big.swap-l{scale:.45;rotate:-35deg;opacity:0;translate:-60px 0}
+.panel .big.swap-r{scale:.45;rotate:35deg;opacity:0;translate:60px 0}
+.panel .coord{transition:opacity .3s}
+.panel .coord.fade{opacity:0}
+
+/* content widgets */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-bottom:14px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);font-weight:500;background:rgba(124,231,244,.05)}
+td:first-child{font-family:var(--f-display);color:var(--violet);font-weight:600}
+tr:last-child td{border-bottom:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.tile{border:1px solid var(--line);border-radius:14px;padding:16px;background:rgba(59,63,184,.12);min-width:0}
+.tile h4{margin:0 0 6px;font-family:var(--f-display);font-weight:600;font-size:.95rem;color:var(--star)}
+.tile p,.tile li{font-size:14px;color:var(--dust);margin:0}
+.tile ul{padding-left:18px;margin:6px 0 0}
+.tile .lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;display:block}
+.stack{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.layer{border-radius:12px;padding:14px 16px;border:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.layer b{font-family:var(--f-display);font-weight:600;font-size:.92rem}
+.layer span{font-size:13px;color:var(--dust)}
+.layer.l1{background:rgba(124,231,244,.08)}.layer.l2{background:rgba(139,92,246,.12)}.layer.l3{background:rgba(59,63,184,.2)}.layer.l4{background:rgba(139,92,246,.22)}
+.flow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.flow .step{flex:1 0 130px;padding:14px;border:1px solid var(--line);border-radius:12px;background:rgba(16,20,64,.6);position:relative}
+.flow .step + .step{margin-left:22px}
+.flow .step + .step::before{content:"→";position:absolute;left:-18px;top:50%;transform:translateY(-50%);color:var(--cyan);font-size:14px}
+.flow .yr{font-family:var(--f-mono);font-size:11px;color:var(--cyan);display:block}
+.flow b{font-family:var(--f-display);font-weight:600;font-size:.85rem;display:block;margin-top:4px}
+.flow small{color:var(--dust);font-size:12px}
+.stat{border:1px solid var(--line);border-radius:14px;padding:16px;background:rgba(16,20,64,.6);min-width:0}
+.stat .n{font-family:var(--f-display);font-weight:800;font-size:1.7rem;color:var(--cyan);font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .d{font-size:13px;color:var(--dust);margin-top:4px}
+.eq{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:18px}
+.eq .side{border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;background:rgba(16,20,64,.6)}
+.eq .side b{font-family:var(--f-display);display:block;font-size:1rem}
+.eq .side span{font-size:13px;color:var(--dust)}
+.eq .sym{font-family:var(--f-display);font-size:2rem;color:var(--violet)}
+
+/* checkpoint quiz */
+.checkpoint{margin-top:44px;border:1px solid rgba(139,92,246,.45);border-radius:18px;padding:22px;background:linear-gradient(160deg,rgba(139,92,246,.14),rgba(11,14,46,.4))}
+.checkpoint .lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--violet)}
+.checkpoint p.q{font-weight:700;color:var(--star);margin:8px 0 14px;font-size:17px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;font:inherit;font-size:15px;color:var(--star);background:rgba(5,7,26,.5);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .25s, background .25s}
+.opt:hover{border-color:var(--cyan)}
+.opt.right{border-color:var(--cyan);background:rgba(124,231,244,.14)}
+.opt.wrong{border-color:#ff7aa8;background:rgba(255,122,168,.1)}
+.feedback{font-size:14px;color:var(--dust);margin-top:12px;min-height:1.2em}
+.panel-nav{display:flex;justify-content:space-between;gap:12px;margin-top:40px;flex-wrap:wrap}
+.panel-nav .btn{flex:1 1 200px;justify-content:center}
+
+/* warp transition */
+.warp{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;
+  background:repeating-radial-gradient(circle at 50% 50%, transparent 0 18px, rgba(124,231,244,.08) 19px 20px);transition:opacity .35s}
+.warp.on{opacity:1;animation:warp .7s ease-out}
+@keyframes warp{from{transform:scale(.6)}to{transform:scale(1.8)}}
+
+/* ---------- Responsive ---------- */
+@media (max-width:960px){
+  .hero .wrap{grid-template-columns:1fr}
+  .system{max-width:420px}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .card,.card:nth-child(4),.card:nth-child(5){grid-column:auto}
+  .card:nth-child(5){grid-column:1 / -1}
+  .brief-grid{grid-template-columns:1fr}
+  .route-path{display:none}
+}
+@media (max-width:820px){
+  .panel .ship{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  .panel .viewport{flex-direction:row;padding:calc(env(safe-area-inset-top,0px) + 18px) 72px 14px max(18px,env(safe-area-inset-left,0px));justify-content:flex-start;gap:16px}
+  .panel .big{width:72px;animation:none}
+  .panel .big::after{display:none}
+  .panel .coord{text-align:left;font-size:10px;line-height:1.6}
+  .panel .content{border-left:0;border-top:1px solid var(--line);padding-top:28px}
+  .grid3{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .cards{grid-template-columns:1fr}
+  .card:nth-child(5){grid-column:auto}
+  .grid2{grid-template-columns:1fr}
+  .eq{grid-template-columns:1fr}
+  .eq .sym{text-align:center}
+  section{padding-block:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<canvas id="space" aria-hidden="true"></canvas>
+<div class="nebula" aria-hidden="true" data-depth="0.04"></div>
+<div class="drift d1" aria-hidden="true" data-depth="0.25"></div>
+<div class="drift d2" aria-hidden="true" data-depth="0.45"></div>
+<div class="drift d3" aria-hidden="true" data-depth="0.7"></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top"><i></i>Cyber Ethics</a>
+    <div class="telemetry" aria-hidden="true">
+      <span class="hide-sm">KELOMPOK <b>1</b></span>
+      <span>PLANET DIKUNJUNGI <b id="visitCount">0/5</b></span>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1 id="heroTitle" aria-label="Etika di Era Teknologi Informasi">Etika di Era <span class="glow">Teknologi Informasi</span></h1>
+        <div class="crew" aria-label="Kelompok 1">
+          <span class="crew-lbl">Kelompok 1</span>
+          <ul>
+            <li>Desvita</li><li>Bunga</li><li>Fahri</li><li>Dika</li><li>Faisal</li>
+          </ul>
+        </div>
+        <p class="lede">Lima planet, satu misi: memahami bagaimana moral, hukum, dan budaya ikut bergerak ketika hidup kita berpindah ke dunia maya. Klik planet mana pun di orbit untuk mendarat.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#route">Mulai ekspedisi
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#briefing">Baca briefing misi</a>
+        </div>
+      </div>
+      <div class="system" id="system" aria-label="Sistem orbit lima planet materi">
+        <div class="sun"><span>ETIKA<br>TI</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="briefing">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Briefing misi</div>
+        <h2>Tiga pertanyaan yang dibawa sepanjang perjalanan</h2>
+        <p>Setiap planet menjawab sebagian dari pertanyaan ini. Simpan di kepala sebelum lepas landas.</p>
+      </div>
+      <div class="brief-grid">
+        <article class="brief"><span class="q">Pertanyaan A</span><p>Apa keterkaitan antara etika, moral, sosial dan budaya dengan Teknologi Informasi?</p></article>
+        <article class="brief"><span class="q">Pertanyaan B</span><p>Prinsip apa yang digunakan sebagai acuan Cyberethics?</p></article>
+        <article class="brief"><span class="q">Pertanyaan C</span><p>Bagaimana secara bijak menyikapi perubahan kehidupan masyarakat sebagai dampak Teknologi Informasi?</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="route">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Rute ekspedisi</div>
+        <h2>Lima planet, diurutkan mengikuti agenda materi</h2>
+        <p>Rute ini mengikuti urutan kuliah: dari definisi cyberethics, dimensi moral, perkembangan cyberspace, kesetaraan dunia nyata dan maya, sampai kasus kejahatan siber.</p>
+      </div>
+      <div class="route">
+        <svg class="route-path" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="routeGrad" x1="0" x2="1"><stop offset="0" stop-color="#7ce7f4"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+          <path d="M160 120 C 330 40, 420 220, 500 120 S 720 40, 840 120 S 760 420, 660 480 S 420 400, 340 480"/>
+        </svg>
+        <div class="cards" id="cards"></div>
+      </div>
+      <div class="progress"><span>Progres ekspedisi</span><div class="bar"><i id="progBar"></i></div><span id="progText">0 dari 5 planet</span></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Etika di Era Teknologi Informasi · Kelompok 1: Desvita, Bunga, Fahri, Dika, Faisal</span>
+    <span class="mono">Rujukan: Tavani (2004) · Laudon, Managing the Digital Firm (2011)</span>
+  </div>
+</footer>
+
+<div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+  <div class="veil" data-close></div>
+  <div class="ship">
+    <div class="viewport">
+      <div class="big planet-shade" id="pBig"></div>
+      <div class="coord" id="pCoord"></div>
+    </div>
+    <div class="content" id="pContent"></div>
+  </div>
+  <button class="close" data-close aria-label="Kembali ke orbit">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </button>
+</div>
+<div class="warp" id="warp" aria-hidden="true"></div>
+
+<script>
+const PLANETS = [
+{
+  id:"cyberethics", name:"Cyberethics", sector:"Sektor 01", skin:1, ring:false, size:30, orbit:40, dur:26,
+  teaser:"Apa itu etika dunia maya, empat fase perkembangannya, dan cara memandangnya sebagai etika terapan.",
+  coord:"ORBIT 01 · GRAVITASI: MORAL<br>RUJUKAN <b>TAVANI 2004</b>",
+  html:`
+  <p class="intro">Cyberethics atau <em>etika dunia maya</em> adalah studi tentang isu moral, legal, dan sosial yang muncul sebagai dampak kemajuan teknologi informasi.</p>
+  <blockquote>Teknologi informasi di sini dipahami dalam arti luas: bukan hanya komputer dan telekomunikasi, tetapi juga hand-held devices, PC, mainframe, internet, dan private network.</blockquote>
+  <p class="src">Herman T. Tavani, <em>Ethics &amp; Technology: Ethical Issues in an Age of Information and Communication Technology</em>, John Wiley &amp; Sons, 2004</p>
+
+  <h3>Empat fase Cyberethics</h3>
+  <p>Setiap fase mewarisi isu dari fase sebelumnya, lalu menambah isu baru sesuai teknologinya.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Fase</th><th>Periode</th><th>Teknologi</th><th>Isu terkait</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1950–1960an</td><td>Stand-alone machine, mainframe</td><td>Artificial Intelligence (AI), privasi database</td></tr>
+      <tr><td>2</td><td>1970–1980an</td><td>Minikomputer dan PC terhubung via private network</td><td>Isu fase 1 + kekayaan intelektual, pembajakan software, kejahatan komputer, privasi komunikasi</td></tr>
+      <tr><td>3</td><td>1990–sekarang</td><td>Internet dan WWW</td><td>Isu fase 1–2 + kebebasan berpendapat, anonimitas, yurisdiksi hukum, komunitas virtual</td></tr>
+      <tr><td>4</td><td>Sekarang–masa depan</td><td>Konvergensi TIK dengan bio dan nanoteknologi</td><td>Isu 1–3 + agen elektronik (bots) yang mampu mengambil keputusan, nanocomputing, bioinformatika, genomika komputasional</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Cyberethics sebagai etika terapan</h3>
+  <div class="grid3">
+    <div class="tile"><span class="lbl">Sudut pandang 1</span><h4>Professional Ethics</h4><p>Etika bagi para profesional komputer.</p></div>
+    <div class="tile"><span class="lbl">Sudut pandang 2</span><h4>Philosophical Ethics</h4><p>Pengaruhnya pada norma serta kehidupan sosial dan politik.</p></div>
+    <div class="tile"><span class="lbl">Sudut pandang 3</span><h4>Descriptive Ethics</h4><p>Pengaruhnya pada aspek tertentu dari sistem moral.</p></div>
+  </div>
+
+  <h3>Deskriptif vs normatif</h3>
+  <div class="grid2">
+    <div class="tile"><span class="lbl">Descriptive</span><h4>Menggambarkan apa yang terjadi</h4><p>Melaporkan atau mendeskripsikan keadaan sebagaimana adanya.</p></div>
+    <div class="tile"><span class="lbl">Normative</span><h4>Menetapkan apa yang seharusnya</h4><p>Bercabang dua:</p>
+      <ul><li><b>Non-moral</b>: standar seperti seni atau olahraga (kriteria lukisan yang baik, atlet berprestasi).</li><li><b>Moral</b>: soal keadilan dan kewajiban (kriteria tindakan dan kebijakan yang adil atau tidak adil).</li></ul></div>
+  </div>
+
+  <h3>Etika dan moralitas</h3>
+  <p>Sistem moral punya dua komponen dasar:</p>
+  <div class="grid2">
+    <div class="tile"><span class="lbl">Rules of conduct</span><h4>Aturan yang menuntun tindakan</h4>
+      <ul><li><b>Mikro</b> (individu): "jangan mencuri", "jangan menyakiti orang lain".</li><li><b>Makro</b> (kebijakan sosial): "software harus dilindungi", "privasi harus dihormati".</li></ul></div>
+    <div class="tile"><span class="lbl">Principles of evaluation</span><h4>Standar untuk menilai aturan</h4><p>Dipakai untuk membenarkan aturan perilaku, misalnya prinsip <em>social utility</em> dan <em>justice as fairness</em>.</p></div>
+  </div>
+
+  <h3>Komponen sistem moral</h3>
+  <div class="stack">
+    <div class="layer l4"><b>Dasar justifikasi</b><span>Agama · Etika filosofis · Hukum</span></div>
+    <div class="layer l3"><b>Principles of Evaluation</b><span>Prinsip moral</span></div>
+    <div class="layer l2"><b>Rules of Conduct</b><span>Aturan moral</span></div>
+    <div class="layer l1"><b>Core Values</b><span>Sumber dari aturan moral</span></div>
+  </div>`,
+  quiz:{q:"Pada fase berapa isu anonimitas dan yurisdiksi hukum mulai muncul?",opts:["Fase 1 (mainframe)","Fase 2 (PC dan private network)","Fase 3 (internet dan WWW)"],a:2,why:"Anonimitas dan yurisdiksi hukum muncul bersama internet dan WWW di fase 3, sejak 1990an."}
+},
+{
+  id:"moral-dimensions", name:"Moral Dimensions", sector:"Sektor 02", skin:2, ring:true, size:24, orbit:54, dur:38,
+  teaser:"Lima dimensi moral sistem informasi, efek riak ke ranah sosial dan politik, dan tren teknologi pemicunya.",
+  coord:"ORBIT 02 · 5 DIMENSI<br>RUJUKAN <b>LAUDON 2011</b>",
+  html:`
+  <p class="intro">Teknologi informasi baru menimbulkan <em>efek riak</em>: isu etika memicu isu sosial, lalu isu sosial memicu isu politik. Semuanya harus dihadapi di tingkat individu, masyarakat, dan politik.</p>
+  <div class="flow">
+    <div class="step"><span class="yr">Tingkat individu</span><b>Isu etika</b><small>Pilihan benar atau salah</small></div>
+    <div class="step"><span class="yr">Tingkat masyarakat</span><b>Isu sosial</b><small>Harapan bersama</small></div>
+    <div class="step"><span class="yr">Tingkat negara</span><b>Isu politik</b><small>Hukum dan regulasi</small></div>
+  </div>
+  <p class="src">Kenneth Laudon, <em>Managing the Digital Firm</em>, Prentice Hall 2011</p>
+
+  <h3>Dampak pada masyarakat dan politik</h3>
+  <div class="grid2">
+    <div class="tile"><span class="lbl">Isu sosial lahir dari isu etika</span>
+      <ul><li>Masyarakat menempatkan perhatian dan harapan pada tiap individu sebagai basis nilai etika.</li><li>Membuka perdebatan publik tentang perilaku yang benar.</li><li>Contoh: sensor di web?</li></ul></div>
+    <div class="tile"><span class="lbl">Isu politik lahir dari konflik sosial</span>
+      <ul><li>Harus berpijak pada landasan hukum yang benar sebagai acuan penegakan hukum.</li><li>Contoh: undang-undang sensor?</li></ul></div>
+  </div>
+
+  <h3>Lima dimensi moral</h3>
+  <div class="grid2">
+    <div class="tile"><span class="lbl">Dimensi 1</span><h4>Information rights &amp; obligations</h4><p>Hak apa yang dimiliki orang atas informasi tentang dirinya? Bolehkah menjual data pelanggan atau melacak perilakunya?</p></div>
+    <div class="tile"><span class="lbl">Dimensi 2</span><h4>Property rights &amp; obligations</h4><p>Siapa pemilik software dan data, dan bagaimana melindungi kekayaan intelektual? Musik, film, berbagi software.</p></div>
+    <div class="tile"><span class="lbl">Dimensi 3</span><h4>System quality</h4><p>Apa standar mutu data dan sistem? Siapa bertanggung jawab bila bug menimbulkan masalah?</p></div>
+    <div class="tile"><span class="lbl">Dimensi 4</span><h4>Quality of life</h4><p>Bagaimana memastikan sistem informasi tidak menurunkan kualitas hidup? Komputasi kapan saja (kerja, keluarga, waktu luang), kejahatan dengan cara baru.</p></div>
+    <div class="tile" style="grid-column:1/-1"><span class="lbl">Dimensi 5</span><h4>Accountability &amp; control</h4><p>Siapa yang harus bertanggung jawab ketika seseorang dirugikan oleh teknologi?</p></div>
+  </div>
+
+  <h3>Tren teknologi yang menuntut etika dunia maya</h3>
+  <div class="grid2">
+    <div class="tile"><h4>1 · Kecepatan komputer naik</h4><p>Hukum Moore: kecepatan IC berlipat dua tiap 2 tahun, prosesor tiap 18 bulan (Intel). Organisasi makin bergantung pada komputer.</p></div>
+    <div class="tile"><h4>2 · Harga penyimpanan turun</h4><p>Siapa pun bisa menyimpan data dengan mudah dan murah. Cloud memungkinkan penyimpanan tanpa perangkat sendiri.</p></div>
+    <div class="tile"><h4>3 · Jaringan dan internet maju</h4><p>Data pribadi dan institusi bisa dipindahkan dari lokasi jauh dengan cepat.</p></div>
+    <div class="tile"><h4>4 · Analisis data (data mining)</h4><p><b>Profiling</b>: agregasi data untuk membentuk profil individu. <b>NORA</b> (Non-obvious Relationship Awareness): mencari koneksi tersembunyi dari banyak sumber untuk identifikasi kriminal atau terorisme.</p></div>
+  </div>`,
+  quiz:{q:"Pertanyaan \"siapa yang bertanggung jawab ketika bug software menimbulkan masalah?\" termasuk dimensi moral apa?",opts:["Information rights & obligations","System quality","Quality of life"],a:1,why:"System quality membahas standar mutu data dan sistem, termasuk tanggung jawab atas bug."}
+},
+{
+  id:"cyberspace", name:"Cyberspace", sector:"Sektor 03", skin:3, ring:false, size:20, orbit:68, dur:50,
+  teaser:"Dari mesin uap ke revolusi digital: bagaimana dunia maya tumbuh dan mengubah nilai, regulasi, serta aktivitas.",
+  coord:"ORBIT 03 · TRANSFORMASI<br>STATUS <b>MASYARAKAT INFORMASI</b>",
+  html:`
+  <p class="intro">Perkembangan IPTEK di bidang <b>akses, jaringan, aplikasi, dan konten</b> menumbuhkan cyberspace, yaitu dunia maya tempat masyarakat kini menjalankan banyak aktivitasnya.</p>
+
+  <h3>Perubahan dan tantangan ke depan</h3>
+  <p>Revolusi bergerak dari elektronika analog di dunia nyata menuju elektronika digital di dunia maya.</p>
+  <div class="flow">
+    <div class="step"><span class="yr">Awal</span><b>Masyarakat agraris</b><small>Sebelum revolusi industri</small></div>
+    <div class="step"><span class="yr">1814</span><b>Mesin uap</b><small>Revolusi industri</small></div>
+    <div class="step"><span class="yr">1873</span><b>Telepon</b><small>Masyarakat industri, elektronika analog</small></div>
+    <div class="step"><span class="yr">1920</span><b>Televisi</b><small>Elektronika analog</small></div>
+    <div class="step"><span class="yr">1973</span><b>Komputer</b><small>Renovasi informasi</small></div>
+    <div class="step"><span class="yr">2010–2025</span><b>Revolusi digital</b><small>Masyarakat informasi, terutama di cyberspace</small></div>
+  </div>
+
+  <h3>Transformasi sosial-budaya</h3>
+  <div class="grid2">
+    <div class="tile"><span class="lbl">Yang ikut bertransformasi</span>
+      <ul><li>Nilai: budaya, sosial, etika, pengetahuan</li><li>Regulasi</li><li>Pembangunan</li><li>Aktivitas, misalnya transaksi</li></ul></div>
+    <div class="tile"><span class="lbl">Contoh</span>
+      <ul><li>Commerce → e-Commerce</li><li>Banking → e-Banking</li><li>Notary → Cyber Notary</li><li>Voting → e-Voting</li></ul></div>
+  </div>
+  <blockquote>Hampir setiap aktivitas dunia nyata kini punya kembaran digital. Ketika aktivitasnya pindah, etika dan aturannya ikut harus pindah.</blockquote>`,
+  quiz:{q:"Empat bidang IPTEK apa yang menumbuhkan cyberspace menurut materi?",opts:["Akses, jaringan, aplikasi, konten","Hardware, software, brainware, data","Komputer, telepon, TV, radio"],a:0,why:"Materi menyebut perkembangan di akses, network, aplikasi, dan konten sebagai penumbuh cyberspace."}
+},
+{
+  id:"real-space", name:"Real Space", sector:"Sektor 04", skin:4, ring:true, size:26, orbit:82, dur:64,
+  teaser:"Real space sama dengan cyber space: norma yang berlaku di dunia nyata juga berlaku di dunia maya.",
+  coord:"ORBIT 04 · CERMIN<br>PRINSIP <b>NYATA = MAYA</b>",
+  html:`
+  <p class="intro">Prinsip utamanya sederhana: dunia maya adalah cermin dunia nyata. Norma tidak berhenti berlaku hanya karena kita sedang online.</p>
+  <div class="eq">
+    <div class="side"><b>Real Space</b><span>Dunia nyata</span></div>
+    <div class="sym">=</div>
+    <div class="side"><b>Cyber Space</b><span>Dunia maya</span></div>
+  </div>
+  <ul>
+    <li>Baik di dunia nyata = baik di dunia maya</li>
+    <li>Buruk di dunia nyata = buruk di dunia maya</li>
+    <li>Norma di dunia nyata dan maya sama</li>
+  </ul>
+
+  <h3>Interaction layers</h3>
+  <p>Interaksi manusia berlapis: dari dunia fisik, perangkat, jaringan, sampai konten dan komunitas. Di tiap lapisan, nilai yang sama harus dibawa.</p>
+
+  <h3>Kekhawatiran yang berputar balik</h3>
+  <div class="flow">
+    <div class="step"><span class="yr">Awal</span><b>Konten negatif</b><small>Beredar di dunia maya</small></div>
+    <div class="step"><span class="yr">Lalu</span><b>Dianggap biasa</b><small>Di dunia maya</small></div>
+    <div class="step"><span class="yr">Akhirnya</span><b>Kebiasaan buruk</b><small>Menjadi biasa di dunia nyata</small></div>
+  </div>
+
+  <h3>Etika di cyberspace dan real space</h3>
+  <p>Etika di dunia nyata, seperti kesusilaan, menghargai orang lain, dan menghargai reputasi orang, harus tetap dijunjung tinggi di dunia maya.</p>
+  <div class="grid2">
+    <div class="tile"><span class="lbl">Norma yang membingkai aktivitas</span>
+      <ul><li>Norma kesopanan</li><li>Norma kesusilaan</li><li>Norma sosial</li><li>Norma adat</li><li>Norma hukum</li></ul></div>
+    <div class="tile"><span class="lbl">Sumber norma hukum</span>
+      <ul><li>Kitab Undang-Undang Hukum Pidana (KUHP)</li><li>Kitab Undang-Undang Hukum Perdata (KUHPer)</li><li>Berbagai produk undang-undang lainnya</li></ul></div>
+  </div>`,
+  quiz:{q:"Seseorang menyebarkan fitnah lewat media sosial dengan akun anonim. Menurut prinsip Real Space = Cyber Space, bagaimana menilainya?",opts:["Tidak masalah karena terjadi di dunia maya","Tetap salah, sama seperti memfitnah di dunia nyata","Hanya salah jika identitasnya diketahui"],a:1,why:"Yang buruk di dunia nyata juga buruk di dunia maya. Norma tetap sama, anonim atau tidak."}
+},
+{
+  id:"digital-cases", name:"Digital Cases", sector:"Sektor 05", skin:5, ring:false, size:22, orbit:96, dur:80,
+  teaser:"Fakta pertumbuhan internet, karakteristiknya, dua kelompok kejahatan komputer, dan bukti digital.",
+  coord:"ORBIT 05 · ZONA RAWAN<br>STATUS <b>WASPADA CYBERCRIME</b>",
+  html:`
+  <p class="intro">Teknologi informasi telah mengubah perilaku dan peradaban masyarakat global. Selain memberi manfaat, ia juga menjadi sarana efektif untuk perbuatan melawan hukum.</p>
+
+  <h3>Data pertumbuhan internet</h3>
+  <div class="grid3">
+    <div class="stat"><div class="n">2,26 M</div><div class="d">pengguna internet dunia, 32% penduduk</div></div>
+    <div class="stat"><div class="n">55 jt</div><div class="d">pengguna internet Indonesia, 22% penduduk</div></div>
+    <div class="stat"><div class="n">2 jt/dtk</div><div class="d">email terkirim setiap detik</div></div>
+    <div class="stat"><div class="n">42,48 jt</div><div class="d">pengguna Facebook Indonesia, peringkat 4 dunia</div></div>
+    <div class="stat"><div class="n">19,5 jt</div><div class="d">pengguna Twitter Indonesia, peringkat 5 dunia</div></div>
+    <div class="stat"><div class="n">Global</div><div class="d">makin banyak pelaku usaha online, berdampak pada perdagangan nasional hingga global</div></div>
+  </div>
+  <p class="src">Sumber pada materi: apjii.or.id, Markplus Insight 2011, checkbook.com (April 2012), semiocast.com (Maret 2012). Angka ini adalah data 2011–2012.</p>
+
+  <h3>Karakteristik internet</h3>
+  <p>Internet positif dalam banyak hal, tetapi tanpa sistem pengamanan memadai ia rawan penyalahgunaan konten: pengambilan, perusakan, perubahan, dan pendistribusian.</p>
+
+  <h3>Dua kelompok kejahatan komputer</h3>
+  <div class="grid2">
+    <div class="tile"><span class="lbl">Komputer sebagai sasaran</span><h4>Sistem yang diserang</h4><p>Komputer, sistem elektronik, dan informasi elektronik menjadi target, misalnya serangan virus dan serangan lain.</p></div>
+    <div class="tile"><span class="lbl">Komputer sebagai alat</span><h4>Sistem yang dipakai menyerang</h4><p>Pencurian data, penipuan, ancaman, dan lainnya. Hampir semua kejahatan tradisional bisa memanfaatkan komputer, dan itu mempersulit pelacakan.</p></div>
+  </div>
+
+  <h3>Dari tertulis ke ter-elektronik</h3>
+  <p>Paradigma masyarakat berubah, begitu pula bukti kejahatan yang kini banyak berbentuk elektronik (<em>digital evidence</em>).</p>
+  <div class="flow">
+    <div class="step"><span class="yr">Dulu</span><b>Tak tertulis</b><small>Lisan</small></div>
+    <div class="step"><span class="yr">Kemudian</span><b>Tertulis</b><small>Dokumen kertas</small></div>
+    <div class="step"><span class="yr">Kini</span><b>Ter-elektronik</b><small>Bukti digital</small></div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>Computer crime</b><small>Kejahatan komputer</small></div>
+    <div class="step"><b>Internet crime</b><small>Kejahatan internet</small></div>
+    <div class="step"><b>Cybercrime</b><small>Kejahatan di dunia maya</small></div>
+  </div>`,
+  quiz:{q:"Penyebaran virus yang merusak server bank termasuk kelompok kejahatan komputer yang mana?",opts:["Komputer sebagai sasaran","Komputer sebagai alat","Bukan kejahatan komputer"],a:0,why:"Server (sistem elektronik) menjadi target serangan, jadi komputer berperan sebagai sasaran."}
+}];
+
+const $ = s => document.querySelector(s);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let visited = new Set();
+try{ visited = new Set(JSON.parse(localStorage.getItem("ce-visited")||"[]")); }catch(e){}
+function saveVisited(){ try{ localStorage.setItem("ce-visited", JSON.stringify([...visited])); }catch(e){} }
+
+/* Hero title letter cascade */
+(function(){
+  const h = $("#heroTitle");
+  let i = 0;
+  const wrap = node => {
+    [...node.childNodes].forEach(n=>{
+      if(n.nodeType===3){
+        const frag=document.createDocumentFragment();
+        [...n.textContent].forEach(c=>{
+          if(c===" "){frag.append(" ");return;}
+          const s=document.createElement("span");s.className="ch";s.textContent=c;s.style.animationDelay=(i++*0.035)+"s";s.setAttribute("aria-hidden","true");frag.append(s);
+        });
+        n.replaceWith(frag);
+      } else if(!n.classList.contains('glow')) wrap(n);
+    });
+  };
+  wrap(h);
+})();
+
+/* Orbit system */
+(function(){
+  const sys = $("#system");
+  PLANETS.forEach((p,idx)=>{
+    const o=document.createElement("div");
+    o.className="orbit";
+    o.style.width=o.style.height=p.orbit+"%";
+    o.style.animationDuration=p.dur+"s";
+    o.style.animationDelay=(-p.dur*idx/5)+"s";
+    const b=document.createElement("button");
+    b.className="body";
+    b.style.animationDuration=p.dur+"s";
+    b.style.animationDelay=(-p.dur*idx/5)+"s";
+    b.setAttribute("aria-label","Buka Planet "+p.name);
+    b.innerHTML=`<span class="orb skin-${p.skin} planet-shade" style="width:${p.size}px;height:${p.size}px"></span><span class="tag">${p.name}</span>`;
+    b.onclick=()=>openPlanet(p.id);
+    o.append(b); sys.append(o);
+  });
+})();
+
+/* Cards */
+function renderCards(){
+  $("#cards").innerHTML = PLANETS.map((p,i)=>`
+    <button class="card" data-id="${p.id}" aria-label="Buka materi Planet ${p.name}">
+      ${visited.has(p.id)?'<span class="visited">DIKUNJUNGI</span>':''}
+      <div class="stage">
+        ${p.ring?'<span class="ring back"></span>':''}
+        <span class="globe skin-${p.skin} planet-shade" style="position:relative;z-index:1"></span>
+        ${p.ring?'<span class="ring front"></span>':'<span class="moon" style="animation-delay:-'+i*1.3+'s"></span>'}
+      </div>
+      <div class="meta"><span>${p.sector}</span><b>${String(i+1).padStart(2,"0")} / 05</b></div>
+      <h3><small>Planet</small>${p.name}</h3>
+      <p>${p.teaser}</p>
+      <span class="go">Mendarat
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </button>`).join("");
+  document.querySelectorAll(".card").forEach(c=>c.onclick=()=>openPlanet(c.dataset.id));
+  const n=visited.size;
+  $("#visitCount").textContent=n+"/5";
+  $("#progText").textContent=n+" dari 5 planet";
+  $("#progBar").style.width=(n/5*100)+"%";
+}
+renderCards();
+
+/* Panel */
+const panel=$("#panel"); let lastFocus=null, curIdx=-1, busy=false;
+function openPlanet(id, fromHash){
+  const i=PLANETS.findIndex(p=>p.id===id); if(i<0 || busy) return;
+  const wasOpen=panel.classList.contains("open");
+  if(wasOpen && i===curIdx) return;
+  const dir = (wasOpen && i<curIdx) ? "l" : "r";
+  if(wasOpen && !reduce){
+    // smooth slide-out of current planet, then slide the next one in
+    busy=true;
+    const old=$("#pContent .slide");
+    old?.classList.add(dir==="r"?"out-l":"out-r");
+    $("#pBig").classList.add(dir==="r"?"swap-l":"swap-r");
+    $("#pCoord").classList.add("fade");
+    setTimeout(()=>{ renderPlanet(i,dir,fromHash,true); busy=false; },330);
+    return;
+  }
+  if(!reduce){ const warp=$("#warp"); warp.classList.remove("on"); void warp.offsetWidth; warp.classList.add("on"); setTimeout(()=>warp.classList.remove("on"),700); }
+  renderPlanet(i,dir,fromHash,false);
+}
+function renderPlanet(i,dir,fromHash,swap){
+  const p=PLANETS[i], prev=PLANETS[i-1], next=PLANETS[i+1];
+  curIdx=i;
+  const big=$("#pBig");
+  if(swap){
+    // jump to the opposite side invisibly, then glide to centre
+    big.style.transition="none";
+    big.className="big planet-shade skin-"+p.skin+" "+(dir==="r"?"swap-r":"swap-l");
+    void big.offsetWidth; big.style.transition="";
+    requestAnimationFrame(()=>big.classList.remove("swap-r","swap-l"));
+  } else big.className="big planet-shade skin-"+p.skin;
+  $("#pCoord").innerHTML=p.sector.toUpperCase()+"<br>"+p.coord;
+  $("#pCoord").classList.remove("fade");
+  $("#pContent").innerHTML=`
+    <div class="slide ${swap?(dir==="r"?"in-r":"in-l"):"reveal"}">
+      <div class="kicker">${p.sector} · Planet</div>
+      <h2 id="pTitle">${p.name}</h2>
+      ${p.html}
+      <div class="checkpoint">
+        <span class="lbl">Checkpoint sebelum lepas landas</span>
+        <p class="q">${p.quiz.q}</p>
+        <div class="opts">${p.quiz.opts.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join("")}</div>
+        <div class="feedback" aria-live="polite"></div>
+      </div>
+      <div class="panel-nav">
+        ${prev?`<button class="btn btn-ghost" data-go="${prev.id}">← Planet ${prev.name}</button>`:`<button class="btn btn-ghost" data-close>← Kembali ke orbit</button>`}
+        ${next?`<button class="btn btn-primary" data-go="${next.id}">Lanjut ke Planet ${next.name} →</button>`:`<button class="btn btn-primary" data-close>Selesaikan ekspedisi ✦</button>`}
+      </div>
+    </div>`;
+  const fb=$("#pContent .feedback");
+  $("#pContent").querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const k=+b.dataset.k;
+    $("#pContent").querySelectorAll(".opt").forEach(x=>x.classList.remove("right","wrong"));
+    if(k===p.quiz.a){ b.classList.add("right"); fb.textContent="Tepat. "+p.quiz.why; }
+    else { b.classList.add("wrong"); fb.textContent="Belum tepat. Coba pilihan lain."; }
+  });
+  $("#pContent").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openPlanet(b.dataset.go));
+  $("#pContent").querySelectorAll("[data-close]").forEach(b=>b.onclick=closePanel);
+  $("#pContent").scrollTop=0;
+  if(!panel.classList.contains("open")){ lastFocus=document.activeElement; }
+  panel.classList.add("open"); document.body.classList.add("locked");
+  visited.add(p.id); saveVisited(); renderCards();
+  if(!fromHash && location.hash!=="#"+p.id) history.replaceState(null,"","#"+p.id);
+  setTimeout(()=>$("#pTitle")?.focus?.(),50);
+  $("#pTitle").setAttribute("tabindex","-1");
+}
+function closePanel(){
+  curIdx=-1;
+  panel.classList.remove("open"); document.body.classList.remove("locked");
+  if(location.hash) history.replaceState(null,"",location.pathname+location.search);
+  lastFocus?.focus?.();
+}
+panel.querySelectorAll(":scope > [data-close], .veil").forEach(el=>el.onclick=closePanel);
+document.addEventListener("keydown",e=>{
+  if(!panel.classList.contains("open")) return;
+  if(e.key==="Escape") closePanel();
+  if(e.key==="Tab"){
+    const f=[...panel.querySelectorAll("button")].filter(x=>x.offsetParent!==null);
+    if(!f.length) return;
+    if(e.shiftKey && document.activeElement===f[0]){e.preventDefault();f[f.length-1].focus();}
+    else if(!e.shiftKey && document.activeElement===f[f.length-1]){e.preventDefault();f[0].focus();}
+  }
+});
+function fromHash(){ const id=location.hash.slice(1); if(PLANETS.some(p=>p.id===id)) openPlanet(id,true); else if(panel.classList.contains("open")) closePanel(); }
+addEventListener("hashchange",fromHash); fromHash();
+
+/* Starfield + data network + parallax */
+(function(){
+  const cv=$("#space"), ctx=cv.getContext("2d");
+  let W,H,dpr,stars=[],nodes=[],mx=0,my=0,sy=0,t=0;
+  function init(){
+    dpr=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight;
+    cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.round(W*H/2600);
+    stars=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H*3,z:Math.random()*0.9+0.1,tw:Math.random()*6.28}));
+    nodes=Array.from({length:Math.round(Math.min(46,W/26))},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18}));
+  }
+  function frame(){
+    t+=0.016;
+    ctx.clearRect(0,0,W,H);
+    // network
+    for(const a of nodes){ a.x+=a.vx; a.y+=a.vy; if(a.x<0||a.x>W)a.vx*=-1; if(a.y<0||a.y>H)a.vy*=-1; }
+    const off=-sy*0.08;
+    for(let i=0;i<nodes.length;i++){
+      const a=nodes[i], ay=((a.y+off)%H+H)%H;
+      for(let j=i+1;j<nodes.length;j++){
+        const b=nodes[j], by=((b.y+off)%H+H)%H, dx=a.x-b.x, dy=ay-by, d=Math.hypot(dx,dy);
+        if(d<150){ ctx.strokeStyle=`rgba(124,231,244,${(1-d/150)*0.16})`; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(a.x,ay); ctx.lineTo(b.x,by); ctx.stroke(); }
+      }
+      ctx.fillStyle="rgba(139,92,246,.7)"; ctx.beginPath(); ctx.arc(a.x,ay,1.6,0,6.28); ctx.fill();
+    }
+    // stars
+    for(const s of stars){
+      const y=((s.y - sy*s.z*0.5 + my*s.z*10)%(H)+H)%H;
+      const x=((s.x + mx*s.z*14)%W+W)%W;
+      const a=0.35+0.65*Math.abs(Math.sin(s.tw+t*s.z*1.4));
+      ctx.fillStyle = s.z>0.75?`rgba(200,250,255,${a})`:`rgba(232,236,255,${a*0.8})`;
+      const r=s.z*1.3;
+      ctx.fillRect(x,y,r,r);
+    }
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  addEventListener("resize",()=>{init(); if(reduce) frame();});
+  addEventListener("mousemove",e=>{ mx=(e.clientX/W-.5); my=(e.clientY/H-.5); },{passive:true});
+  const layers=[...document.querySelectorAll("[data-depth]")];
+  addEventListener("scroll",()=>{
+    sy=scrollY;
+    if(reduce) return;
+    layers.forEach(l=>{ const d=+l.dataset.depth; l.style.transform=`translate3d(${mx*d*-40}px,${-sy*d}px,0)`; });
+  },{passive:true});
+  init(); frame();
+})();
+</script>
+</body>
+</html>
